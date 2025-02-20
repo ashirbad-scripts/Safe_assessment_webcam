@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lockdown Browser</title>
+    <style>
+        body {
+            text-align: center;
+            font-family: Arial, sans-serif;
+            background-color: #222;
+            color: white;
+            margin: 0;
+            overflow: hidden;
+        }
+        #lockdown-alert {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+        }
+        #video-container {
+            display: none;
+            margin-top: 50px;
+        }
+        img {
+            border: 5px solid white;
+            border-radius: 10px;
+        }
+        .controls {
+            margin-top: 20px;
+            display: none;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            margin: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div id="lockdown-alert">
+        <h2>You are about to enter a lockdown browser</h2>
+        <p>Pressing any key will end the session.</p>
+        <button onclick="startWebcam()">ENTER WEBCAM</button>
+    </div>
+
+    <div id="video-container">
+        <img src="{{ url_for('video_feed') }}" width="640" height="480">
+    </div>
+
+    <div class="controls">
+        <button onclick="captureScreenshot()">Capture Screenshot</button>
+        <button onclick="exitWebcam()">Exit Webcam</button>
+    </div>
+
+    <script>
+        function startWebcam() {
+            document.getElementById("lockdown-alert").style.display = "none";
+            document.getElementById("video-container").style.display = "block";
+            document.querySelector(".controls").style.display = "block";
+        }
+
+        function captureScreenshot() {
+            let video = document.querySelector("img");
+            let link = document.createElement("a");
+            link.href = video.src;
+            link.download = "screenshot.jpg";
+            link.click();
+        }
+
+        function exitWebcam() {
+            fetch("/shutdown").then(response => {
+                alert("Webcam session ended.");
+                window.close();
+            });
+        }
+
+        document.addEventListener("keydown", function () {
+            exitWebcam();
+        });
+    </script>
+</body>
+</html>
